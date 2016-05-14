@@ -1,18 +1,26 @@
 /*
  *Describe: tiny.c
- *	A simple ,iterative HTTP/1.0 web server that uses 
+ *	A simple ,mutli-process HTTP/1.0 web server that uses 
  *	the GET method to server static and dynamic content.
  */
 //#include "../lib/csapp.h"
 #include "lib/csapp.h"
 #include "transaction.h"
-
+static void signalchild_handler(int sig){
+	while(waitpid(-1,0,WNOHANG)>0){
+		;
+	}
+	return;
+}
 int main(int argc,char* argv[]){
 	
 	if(argc!=2){
 		fprintf(stderr,"Usage: %s <port>\n",argv[0]);
 		exit(EXIT_FAILURE);
 	}
+	/*create signal handler*/
+	Signal(SIGCHLD,signalchild_handler);
+
 	int listenfd,connfd,port,clientlen;
 	struct sockaddr_in clientaddr;
 	//struct hostent *hp;
@@ -40,8 +48,16 @@ int main(int argc,char* argv[]){
 			printf("server connected to unknow(%s)\n",
 					haddrp);
 		*/
-		doit(connfd);
-		Close(connfd);
+		/*create new process*/
+		if(Fork()==0){
+			Close(listenfd);
+			doit(connfd);/* Note: parent and child share
+				      the file descriptor,but address
+				      space not.*/
+			Close(connfd);
+			exit(EXIT_SUCCESS);
+		}
+		Close(connfd); /* Parent closes connected socket(impormant)*/
 	}
 
 	exit(EXIT_SUCCESS);
