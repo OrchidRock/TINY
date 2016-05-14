@@ -1,0 +1,6 @@
+# no bin
+bin/*
+# no .o
+*.o
+# no cgi-bin
+cgi-bin/*
