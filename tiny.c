@@ -3,7 +3,6 @@
  *	A simple ,multi-threads web server that uses 
  *	the GET method to server static and dynamic content.
  */
-#include "../lib/csapp.h"
 #include "lib/csapp.h"
 #include "transaction.h"
 void* clientThread(void* vargp);
