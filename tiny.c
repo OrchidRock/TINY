@@ -1,11 +1,12 @@
 /*
  *Describe: tiny.c
- *	A simple ,I/O multiplexing Iteration web server that uses 
+ *	A simple ,multi-threads web server that uses 
  *	the GET method to server static and dynamic content.
  */
-//#include "../lib/csapp.h"
+#include "../lib/csapp.h"
 #include "lib/csapp.h"
 #include "transaction.h"
+void* clientThread(void* vargp);
 
 void command(void){
 	char buf[MAXLINE];
@@ -21,39 +22,36 @@ int main(int argc,char* argv[]){
 		exit(EXIT_FAILURE);
 	}
 
-	int listenfd,connfd,port,clientlen;
+	int listenfd,*connfdp,clientlen;
 	struct sockaddr_in clientaddr;
-	fd_set read_set,ready_set;
-
+	pthread_t tid;
 	//struct hostent *hp;
 	char hbuf[NI_MAXHOST];
 	listenfd=Open_listenfd(argv[1]);
 
-	FD_ZERO(&read_set);
-	FD_SET(STDIN_FILENO,&read_set);
-	FD_SET(listenfd,&read_set);
-
 	while(1){
+		clientlen=sizeof(clientaddr);
+		hbuf[0]='\0';
+		connfdp=Malloc(sizeof(int));
+		*connfdp=Accept(listenfd,(SA*)&clientaddr,&clientlen);
+		/*Create new thread*/
+		Pthread_create(&tid,NULL,clientThread,connfdp);
 
-		ready_set=read_set;
-		Select(listenfd+1,&ready_set,NULL,NULL,NULL);/*Stall*/
-		if(FD_ISSET(STDIN_FILENO,&ready_set))
-			command();
-		if(FD_ISSET(listenfd,&ready_set)){
-			clientlen=sizeof(clientaddr);
-			hbuf[0]='\0';
-			connfd=Accept(listenfd,(SA*)&clientaddr,&clientlen);
-			Getnameinfo((SA*)&clientaddr,clientlen,hbuf,
-					sizeof(hbuf),NULL,0,NI_NAMEREQD);
-			char* haddrp=inet_ntoa(clientaddr.sin_addr);
-			printf("server connected to %s (%s)\n",
-					hbuf,haddrp);
+		Getnameinfo((SA*)&clientaddr,clientlen,hbuf,
+				sizeof(hbuf),NULL,0,NI_NAMEREQD);
+		char* haddrp=inet_ntoa(clientaddr.sin_addr);
+		printf("server connected to %s (%s)\n",
+				hbuf,haddrp);
 
-			doit(connfd);/* Note: parent and child share
-					the file descriptor,but address
-					space not.*/
-			Close(connfd);
-		}
 	}
 	exit(EXIT_SUCCESS);
+}
+void* clientThread(void* varfgp){
+	int connfd=*((int*)varfgp);
+	Pthread_detach(pthread_self());
+	Free(varfgp);
+	
+	doit(connfd);
+	Close(connfd);
+	return NULL;
 }

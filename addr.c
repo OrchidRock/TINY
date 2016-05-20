@@ -25,8 +25,10 @@ int main(int argc,char* argv[]){
 			content,n1,n2,n1+n2);
 	sprintf(content,"%sThanks for visiting!\r\n",content);
 
-	printf("Content-Length: %d\r\n",(int)strlen(content));
-	printf("Content-Type: text/html\r\n\r\n");
+	//printf("Content-Length: %d\r\n",(int)strlen(content));
+	//printf("Content-Type: text/html\r\n\r\n");
+	printf("Content-Length: %d\r\nContent-Type: text/html\r\n\r\n",
+			(int)strlen(content));
 	printf("%s",content);
 	fflush(stdout);
 	exit(EXIT_SUCCESS);

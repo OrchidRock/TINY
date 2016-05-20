@@ -110,8 +110,8 @@ server_dynamic(int fd,char* filename,char* cgiargs){
 	char* emptylist[]={NULL};
 	/*Return response*/
 	sprintf(buf,"HTTP/1.0 200 OK\r\n");
-	Rio_writen(fd,buf,strlen(buf));
-	sprintf(buf,"Server: Tiny Web Server\r\n");
+	//Rio_writen(fd,buf,strlen(buf));
+	sprintf(buf,"%sServer: Tiny Web Server\r\n",buf);
 	Rio_writen(fd,buf,strlen(buf));
 	if(Fork()==0){ /* Child process*/
 		/*Set all CGI vars*/
