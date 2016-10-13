@@ -27,4 +27,6 @@ extern void sbuf_insert(sbuf_t *sp,int item);
 
 /* Remove and return the first item from sp*/
 extern int sbuf_remove(sbuf_t *sp);
+
+extern int get_sbuf_items_count(sbuf_t *sp);
 #endif

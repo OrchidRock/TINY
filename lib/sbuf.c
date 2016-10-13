@@ -28,3 +28,10 @@ int sbuf_remove(sbuf_t *sp){
 
 	return item;
 }
+int get_sbuf_items_count(sbuf_t *sp){
+	int items_count=0;
+	P(&sp->mutex);
+	items_count=(sp->rear - sp->front + sp->n)%(sp->n);
+	V(&sp->mutex);
+	return items_count;
+}

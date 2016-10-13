@@ -42,7 +42,7 @@ void posix_error(int code, char *msg) /* Posix-style error */
 void gai_error(int code, char *msg) /* Getaddrinfo-style error */
 {
     fprintf(stderr, "%s: %s\n", msg, gai_strerror(code));
-    //exit(0);
+    exit(0);
 }
 
 void app_error(char *msg) /* Application error */
@@ -604,8 +604,8 @@ void Getnameinfo(const struct sockaddr *sa, socklen_t salen, char *host,
     int rc;
 
     if ((rc = getnameinfo(sa, salen, host, hostlen, serv, 
-                          servlen, flags)) != 0) 
-        gai_error(rc, "Getnameinfo error");
+                          servlen, flags)) != 0)
+    	fprintf(stderr, "Getnameinfo error: %s\n", gai_strerror(rc));
 }
 
 void Freeaddrinfo(struct addrinfo *res)
@@ -738,6 +738,7 @@ void V(sem_t *sem)
 ssize_t rio_readn(int fd, void *usrbuf, size_t n) 
 {
     size_t nleft = n;
+    //size_t nleft = n;
     ssize_t nread;
     char *bufp = usrbuf;
 
@@ -897,7 +898,7 @@ ssize_t Rio_readn(int fd, void *ptr, size_t nbytes)
 void Rio_writen(int fd, void *usrbuf, size_t n) 
 {
     if (rio_writen(fd, usrbuf, n) != n)
-	unix_error("Rio_writen error");
+    	unix_error("Rio_writen error");
 }
 
 void Rio_readinitb(rio_t *rp, int fd)

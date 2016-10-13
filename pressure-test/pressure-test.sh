@@ -1,5 +1,6 @@
 #!/bin/sh
 
+PORT=$1
 count=10
 telnetTestFile="telnet_test_cmd"
 serveraddress="localhost"
@@ -19,7 +20,7 @@ exec 8<>$telnetTestFile
 
 while [ $count > 0 ];
 do
-	telnet $serveraddress 80 <&8 >&7 &
+	telnet $serveraddress $PORT <&8 >&7 &
 	sleep 1;echo $cmd >> $telnetTestFile
 	tail -f $outfile
 	( (count--))
