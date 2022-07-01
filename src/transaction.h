@@ -5,6 +5,6 @@
  *transaction handler
  *@fd the open connfd that connect client.
  */
-extern void doit(int fd);
+extern void doit(int fd, char*);
 
 #endif

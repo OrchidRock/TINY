@@ -46,14 +46,14 @@ read_requesthdrs(rio_t* rp, char* content, int ispost){
 }
 
 static int
-parse_uri(char* uri,char* filename,char* cgiargs){
+parse_uri(char* uri,char* filename,char* root_path, char* cgiargs){
 	char *ptr;
 	if(!strstr(uri,"cgi-bin")){ /*Static content*/
 		strcpy(cgiargs,"");
-		strcpy(filename,ROOT_PATH);
+		strcpy(filename,root_path);
 		strcat(filename,uri);
 		if(uri[strlen(uri)-1]=='/'){
-			strcat(filename,"home.html");
+			strcat(filename,"index.html");
 		}
 		return 1; /* static */
 	}else{ /* Dynamic content*/
@@ -153,7 +153,7 @@ server_dynamic(int fd,char* filename,char* cgiargs){
 }
 
 void 
-doit(int fd){
+doit(int fd, char* root_path){
 	int is_static;
 	struct stat sbuf;
 	char buf[MAXLINE],method[MAXLINE],uri[MAXLINE],version[MAXLINE];
@@ -167,8 +167,8 @@ doit(int fd){
 	sscanf(buf,"%s %s %s",method,uri,version);
 	if (strcmp(method,"GET")){
 		if(strcmp(method, "HEAD") == 0){
-			server_static(fd, NULL, 0);
-			return;
+			//server_static(fd, NULL, 0);
+			//return;
 		}
 		else if(strcmp(method, "POST") == 0){
 			//printf("POST OK !!");
@@ -188,14 +188,14 @@ doit(int fd){
 #endif
 	/*prase uri*/
 
-	is_static=parse_uri(uri,filename,cgiargs);
+	is_static=parse_uri(uri,filename,root_path,cgiargs);
 #ifdef DEBUG
 	printf("----debug : doit----\n");
 	printf("is_static= %s,uri= %s,filename= %s, cgiargs= %s\n",
 		is_static?"static":"dynamic",uri,filename,cgiargs);
 #endif
-
 	if(stat(filename,&sbuf)<0){
+        printf("errno=%d\n",errno);
 		clienterror(fd,filename,"404","Not Found",
 				"Tiny could't find this file");
 		return;
